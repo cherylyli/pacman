@@ -91,6 +91,7 @@ def depthFirstSearch(problem):
   currentState = problem.getStartState()
   prevBranch = []
   traversed = []
+  lastNode = None
   traversed.append(currentState)
 
   # while we didn't find the solution, get the possible moves, 
@@ -100,48 +101,46 @@ def depthFirstSearch(problem):
   while problem.isGoalState(currentState) == False:
     choices = problem.getSuccessors(currentState)
 
+    # get a list of the nodes that have not been traversed yet
     new_choices = []
     for choice in choices:
       if choice[0] not in traversed:
         new_choices.append(choice)
   
+    # if there's only one node that have not been traversed yet, move in that direction
     if len(new_choices) == 1:
       currentState = new_choices[0][0]
       optimalPath.append(new_choices[0])
       traversed.append(new_choices[0][0])
 
+    # if there's more than one node that have not been traversed yet
+    # push the node into the prevBranch list
     elif len(new_choices) > 1:
       currentState = new_choices[0][0]
       optimalPath.append(new_choices[0])
       traversed.append(new_choices[0][0])
       prevBranch.append(new_choices)
     
-    # when there are no more choices, go back up the tree
+    # when there are no more choices, go back up the tree and pop nodes off optimalPath
+    # until reaching the last branch, and traverse one untraversed node in that branch
     else:
-      print "previous branch: ", prevBranch
-      if len(prevBranch) > 0:
-        lastBranch = prevBranch[-1]
-        if len(lastBranch) > 2:
-          prevBranch[-1] = lastBranch[1:]
-        else:
-          prevBranch = prevBranch[:-1]    
-        
-      print "last branch", lastBranch
-      while True:
-        if currentState == lastBranch[0][0]:
-          currentState = lastBranch[1][0]
-          optimalPath.append(lastBranch[1])
-          traversed.append(currentState)
-          break
-        if len(optimalPath) == 0:
-          currentState = problem.getStartState()
-          break
-        else:
-          currentState = optimalPath.pop()[0]
+      if len(optimalPath) == 0:
+        currentState = problem.getStartState()
+        continue
 
+
+      if len(prevBranch) > 0:
+        lastBranch = prevBranch.pop() 
+      
+      while currentState != lastBranch[0][0]:
+        lastNode = optimalPath.pop()
+        currentState = lastNode[0]
+      
+      currentState = optimalPath[-1][0]
+
+  # return the directions
   directions = []
   for node in optimalPath:
-    # print node
     directions.append(node[1])
 
   return directions
@@ -154,11 +153,13 @@ def breadthFirstSearch(problem):
   """
   "*** YOUR CODE HERE ***"
   # a queue to store the nodes in current layer
+  # a optimalPath list to store the best path
   current_layer = Queue()
-  next_layer = Queue()
   optimalPath = []
   currentState = problem.getStartState()
   traversed = []
+
+
 
 
   util.raiseNotDefined()
