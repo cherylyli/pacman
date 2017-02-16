@@ -85,16 +85,18 @@ def depthFirstSearch(problem):
   print "Start's successors:", problem.getSuccessors(problem.getStartState())
   """
   "*** YOUR CODE HERE ***"
-  print "Start:", problem.getStartState()
-  print "Is the start a goal?", problem.isGoalState(problem.getStartState())
-  print "Start's successors:", problem.getSuccessors(problem.getStartState())
-  # use a queue to remember the current path
-  # use a stack to remember the nodes that have been traversed
+  # use a list to remember the current path
+  # use a list to remember the places where there was a branch
   optimalPath = []
   currentState = problem.getStartState()
   prevBranch = []
   traversed = []
   traversed.append(currentState)
+
+  # while we didn't find the solution, get the possible moves, 
+  # remove the already traversed moves from the possible moves,
+  # if there's only one remaining possible move, then push that move to list
+  # if there's more than one remaining possible move, push the choices 
   while problem.isGoalState(currentState) == False:
     choices = problem.getSuccessors(currentState)
 
@@ -114,12 +116,16 @@ def depthFirstSearch(problem):
       traversed.append(new_choices[0][0])
       prevBranch.append(new_choices)
     
-    # if no more choices
+    # when there are no more choices, go back up the tree
     else:
       print "previous branch: ", prevBranch
       if len(prevBranch) > 0:
         lastBranch = prevBranch[-1]
-        prevBranch = prevBranch[:-1]
+        if len(lastBranch) > 2:
+          prevBranch[-1] = lastBranch[1:]
+        else:
+          prevBranch = prevBranch[:-1]    
+        
       print "last branch", lastBranch
       while True:
         if currentState == lastBranch[0][0]:
@@ -135,9 +141,8 @@ def depthFirstSearch(problem):
 
   directions = []
   for node in optimalPath:
-    print node
+    # print node
     directions.append(node[1])
-  print(directions)
 
   return directions
       
@@ -148,6 +153,14 @@ def breadthFirstSearch(problem):
   [2nd Edition: p 73, 3rd Edition: p 82]
   """
   "*** YOUR CODE HERE ***"
+  # a queue to store the nodes in current layer
+  current_layer = Queue()
+  next_layer = Queue()
+  optimalPath = []
+  currentState = problem.getStartState()
+  traversed = []
+
+
   util.raiseNotDefined()
       
 def uniformCostSearch(problem):
