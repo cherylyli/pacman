@@ -163,30 +163,32 @@ def breadthFirstSearch(problem):
   traversed.append(problem.getStartState())
 
 
-  # go through all the nodes in current_layer
+  # go through all the nodes in current_layer, until current_layer is empty
   while current_layer.isEmpty() == False:
     current_state = current_layer.pop()
-    if problem.isGoalState(current_state) == True:
+
+    # if we found the goal state, then get the current path and break
+    if problem.isGoalState(current_state):
       shortest_path = paths[current_state]
       break
 
+    # otherwise, get the current path for that node
     current_path = []
     if current_state in paths:
       current_path = paths.pop(current_state, None)
 
-    # print "current state", current_state
-    # print "current path", current_path
-    # print "current layer", current_layer.printSelf()
-    # print "traversed", traversed
-
-    
+    # get the untraversed possible moves for current node
     choices = problem.getSuccessors(current_state)
     new_choices = []
     for choice in choices:
       if choice[0] not in traversed:
         new_choices.append(choice)
         traversed.append(choice[0])
-
+    
+    # if there's no more untraversed possible moves, 
+    # then terminate search on that path
+    # otherwise, make deep copy of current path, push new node onto the copy
+    # and put new path into paths dictionary
     if len(new_choices) == 0:
       continue
     else:
@@ -196,47 +198,62 @@ def breadthFirstSearch(problem):
         paths[new_choice[0]] = new_path
         current_layer.push(new_choice[0])
 
-    # print "new_choices", new_choices
-    # print "paths after", paths
-    # print
-    
-    
-    
-
-  directions = []
-  for node in shortest_path:
-    directions.append(node[1])
+  # get directions in "South", "West", "East", and "North" form
+  directions = [node[1] for node in shortest_path]
   return directions
-      
-    
-    
-    
 
-  # while problem.isGoalState(currentState) == False:
-  #   choices = problem.getSuccessors(currentState)
-  #   new_choices = []
-  #   for choice in choices:
-  #     if choice not in traversed:
-  #       new_choices.append(choice)
-    
-  #   if len(new_choices) == 1:
-  #     optimalPath.append(new_choices[0])
-  #     currentState = new_choices[0][0]
-  #     traversed.append(currentState)
-      
-  #   elif len(new_choices) > 1:
-  #     current_layer.extend(new_choices)
-
-
-
-
-
-  util.raiseNotDefined()
       
 def uniformCostSearch(problem):
   "Search the node of least total cost first. "
   "*** YOUR CODE HERE ***"
-  util.raiseNotDefined()
+  # use a priority queue to store the current layer
+  # use a traversed list for nodes that are already traversed
+  frontier = util.PriorityQueue()
+  traversed = []
+
+
+  # perform the first loop:
+  # get start node and its successors, compute value and push into frontier
+  current_node = problem.getStartState()
+  traversed.append(current_node)
+  actions = problem.getSuccessors(current_node)
+
+  for action in actions:
+    actions_list = []
+    path = []
+    path.append(action)
+    actions_list.append(action[1])
+    cost = problem.getCostOfActions(actions_list)
+    frontier.push(path, cost)
+    traversed.append(action[0])
+
+  # while the frontier isn't empty, pop and examine the next path with the smallest cost
+  while frontier.isEmpty() == False:
+    current_path = frontier.pop()
+    current_node = current_path[-1]
+
+    # if we reached the goal, break and return shortest path
+    if problem.isGoalState(current_node[0]):
+      shortest_path = [node[1] for node in current_path]
+      return shortest_path
+      break
+
+    # get the new_choices and new traversed list
+    choices = problem.getSuccessors(current_node[0])
+    new_choices, traversed = getNewChoices(choices, traversed)     
+
+    # if no more choices, then end looking into this path
+    if len(new_choices) == 0:
+      continue
+
+    # concat current path to new choice, get cost, and push into frontier
+    for new_choice in new_choices:
+      new_path = current_path[:]
+      new_path.append(new_choice)
+      new_cost_compute = [node[1] for node in new_path]
+      new_cost = problem.getCostOfActions(new_cost_compute)
+      frontier.push(new_path, new_cost)
+
 
 def nullHeuristic(state, problem=None):
   """
@@ -249,6 +266,18 @@ def aStarSearch(problem, heuristic=nullHeuristic):
   "Search the node that has the lowest combined cost and heuristic first."
   "*** YOUR CODE HERE ***"
   util.raiseNotDefined()
+
+def getNewChoices(choices, traversed):
+  """
+    input: a list of choices and a traversed list
+    output: a list of the choices that are not in the traversed list
+  """
+  new_choices = []
+  for choice in choices:
+    if choice[0] not in traversed:
+      new_choices.append(choice)
+      traversed.append(choice[0])
+  return new_choices, traversed
     
   
 # Abbreviations
