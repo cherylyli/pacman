@@ -51,6 +51,9 @@ class Queue:
   def isEmpty(self):
     "Returns true if the queue is empty"
     return len(self.list) == 0
+
+  def printSelf(self):
+    return self.list
   
 class PriorityQueue:
   """

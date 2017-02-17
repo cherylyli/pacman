@@ -153,11 +153,80 @@ def breadthFirstSearch(problem):
   """
   "*** YOUR CODE HERE ***"
   # a queue to store the nodes in current layer
-  # a optimalPath list to store the best path
-  current_layer = Queue()
-  optimalPath = []
-  currentState = problem.getStartState()
+  # a paths dictionary to know which nodes are where
+  current_layer = util.Queue()
+  paths = {}
   traversed = []
+
+  current_layer.push(problem.getStartState())
+  shortest_path = []
+  traversed.append(problem.getStartState())
+
+
+  # go through all the nodes in current_layer
+  while current_layer.isEmpty() == False:
+    current_state = current_layer.pop()
+    if problem.isGoalState(current_state) == True:
+      shortest_path = paths[current_state]
+      break
+
+    current_path = []
+    if current_state in paths:
+      current_path = paths.pop(current_state, None)
+
+    # print "current state", current_state
+    # print "current path", current_path
+    # print "current layer", current_layer.printSelf()
+    # print "traversed", traversed
+
+    
+    choices = problem.getSuccessors(current_state)
+    new_choices = []
+    for choice in choices:
+      if choice[0] not in traversed:
+        new_choices.append(choice)
+        traversed.append(choice[0])
+
+    if len(new_choices) == 0:
+      continue
+    else:
+      for new_choice in new_choices:
+        new_path = current_path[:]
+        new_path.append(new_choice)
+        paths[new_choice[0]] = new_path
+        current_layer.push(new_choice[0])
+
+    # print "new_choices", new_choices
+    # print "paths after", paths
+    # print
+    
+    
+    
+
+  directions = []
+  for node in shortest_path:
+    directions.append(node[1])
+  return directions
+      
+    
+    
+    
+
+  # while problem.isGoalState(currentState) == False:
+  #   choices = problem.getSuccessors(currentState)
+  #   new_choices = []
+  #   for choice in choices:
+  #     if choice not in traversed:
+  #       new_choices.append(choice)
+    
+  #   if len(new_choices) == 1:
+  #     optimalPath.append(new_choices[0])
+  #     currentState = new_choices[0][0]
+  #     traversed.append(currentState)
+      
+  #   elif len(new_choices) > 1:
+  #     current_layer.extend(new_choices)
+
 
 
 
