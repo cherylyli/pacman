@@ -263,8 +263,58 @@ def nullHeuristic(state, problem=None):
   return 0
 
 def aStarSearch(problem, heuristic=nullHeuristic):
-  "Search the node that has the lowest combined cost and heuristic first."
-  "*** YOUR CODE HERE ***"
+  """
+  Search the node that has the lowest combined cost and heuristic first. 
+  total cost = cost of actions + distance from goal according to manhattan heuristic
+  """
+  # use a priority queue to store the current layer
+  # use a traversed list for nodes that are already traversed
+  frontier = util.PriorityQueue()
+  traversed = []
+
+
+  # perform the first loop:
+  # get start node and its successors, compute value and push into frontier
+  current_node = problem.getStartState()
+  traversed.append(current_node)
+  actions = problem.getSuccessors(current_node)
+
+  for action in actions:
+    actions_list = []
+    path = []
+    path.append(action)
+    actions_list.append(action[1])
+    cost = problem.getCostOfActions(actions_list)
+    cost += heuristic(current_node, problem)
+    frontier.push(path, cost)
+    traversed.append(action[0])
+
+  # while the frontier isn't empty, pop and examine the next path with the smallest cost
+  while frontier.isEmpty() == False:
+    current_path = frontier.pop()
+    current_node = current_path[-1]
+
+    # if we reached the goal, break and return shortest path
+    if problem.isGoalState(current_node[0]):
+      shortest_path = [node[1] for node in current_path]
+      return shortest_path
+      break
+
+    # get the new_choices and new traversed list
+    choices = problem.getSuccessors(current_node[0])
+    new_choices, traversed = getNewChoices(choices, traversed)     
+
+    # if no more choices, then end looking into this path
+    if len(new_choices) == 0:
+      continue
+
+    # concat current path to new choice, get cost, and push into frontier
+    for new_choice in new_choices:
+      new_path = current_path[:]
+      new_path.append(new_choice)
+      new_cost_compute = [node[1] for node in new_path]
+      new_cost = problem.getCostOfActions(new_cost_compute) + heuristic(current_node[0], problem)
+      frontier.push(new_path, new_cost)
   util.raiseNotDefined()
 
 def getNewChoices(choices, traversed):
