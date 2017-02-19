@@ -268,6 +268,7 @@ class CornersProblem(search.SearchProblem):
     Stores the walls, pacman's starting position and corners.
     """
     self.walls = startingGameState.getWalls()
+    print self.walls
     self.startingPosition = startingGameState.getPacmanPosition()
     top, right = self.walls.height-2, self.walls.width-2 
     self.corners = ((1,1), (1,top), (right, 1), (right, top))
@@ -276,11 +277,6 @@ class CornersProblem(search.SearchProblem):
       if not startingGameState.hasFood(*corner):
         print 'Warning: no food in corner ' + str(corner)
     self._expanded = 0 # Number of search nodes expanded
-    
-
-    
-    
-    "*** YOUR CODE HERE ***"
     
   def getStartState(self):
     "Returns the start state (in your state space, not the full Pacman state space)"
@@ -295,7 +291,6 @@ class CornersProblem(search.SearchProblem):
     "Returns whether this search state is a goal state of the problem"
     # "*** YOUR CODE HERE ***"
     # return whether or not has traversed all corners and ate all food
-    # print "traversed corners", self.traversed_corners
     if state in self.corners and state not in self.traversed_corners:
       self.traversed_corners.append(state)
     return self.traversed_corners
@@ -324,7 +319,6 @@ class CornersProblem(search.SearchProblem):
       if not hitsWall:
         successors.append(((nextx, nexty), action, 1))
       
-      # "*** YOUR CODE HERE ***"
 
     # print "successors", successors
     self._expanded += 1
@@ -359,9 +353,19 @@ def cornersHeuristic(state, problem):
   """
   corners = problem.corners # These are the corner coordinates
   walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
+
+  # find the nearest corner that hasn't been traversed yet
+  unexplored_distance = [util.manhattanDistance(c, state) for c in problem.corners if c not in problem.traversed_corners]
+  return min(unexplored_distance)
+  # print "unexplored_distance", unexplored_distance
+
+
+
+
+  # return the manhattanDistance between current position and that corner
   
-  "*** YOUR CODE HERE ***"
-  return 0 # Default to trivial solution
+  # "*** YOUR CODE HERE ***"
+  # return 0 # Default to trivial solution
 
 class AStarCornersAgent(SearchAgent):
   "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"

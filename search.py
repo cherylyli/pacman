@@ -160,7 +160,7 @@ def breadthFirstSearch(problem):
   corners_problem = False
 
   start_state = problem.getStartState()
-  print start_state
+  # print start_state
   if not isinstance(start_state[1], int):
     corners_problem = True
 
@@ -264,6 +264,7 @@ def breadthFirstSearch(problem):
 
     # get directions in "South", "West", "East", and "North" form
     directions = [node[1] for node in shortest_path]
+    print len(directions)
     return directions
 
 
@@ -339,11 +340,29 @@ def aStarSearch(problem, heuristic=nullHeuristic):
   # use a traversed list for nodes that are already traversed
   frontier = util.PriorityQueue()
   traversed = []
+  corners_problem = False
+  shortest_path = []
 
+  start_state = problem.getStartState()
+  # print start_state
+  if not isinstance(start_state[1], int):
+    corners_problem = True
+
+
+
+  
+  start_state = problem.getStartState()
+  if not isinstance(start_state[1], int):
+    corners_problem = True
+    current_node = start_state[0]
+    corners_state = start_state[1][:]
+  else:
+    current_node = start_state
+
+  # print current_node
 
   # perform the first loop:
   # get start node and its successors, compute value and push into frontier
-  current_node = problem.getStartState()
   traversed.append(current_node)
   actions = problem.getSuccessors(current_node)
 
@@ -362,11 +381,28 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     current_path = frontier.pop()
     current_node = current_path[-1]
 
+
     # if we reached the goal, break and return shortest path
-    if problem.isGoalState(current_node[0]):
+    if not corners_problem and problem.isGoalState(current_node[0]):
       shortest_path = [node[1] for node in current_path]
       return shortest_path
-      break
+      
+    elif corners_problem and len(problem.isGoalState(current_node[0])) > len(corners_state):
+      if len(problem.isGoalState(current_node[0])) == 4:
+        shortest_path = current_path
+        path = [node[1] for node in shortest_path]
+        return path
+      else:
+        corners_state = problem.isGoalState(current_node[0])[:]
+        shortest_path = current_path
+        traversed = []
+        traversed.append(current_node[0])
+        frontier = util.PriorityQueue()
+        actions_list = [node[1] for node in shortest_path]
+        cost = problem.getCostOfActions(actions_list) + heuristic(current_node[0], problem)
+        frontier.push(shortest_path, cost)
+          
+      
 
     # get the new_choices and new traversed list
     choices = problem.getSuccessors(current_node[0])
@@ -383,7 +419,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
       new_cost_compute = [node[1] for node in new_path]
       new_cost = problem.getCostOfActions(new_cost_compute) + heuristic(current_node[0], problem)
       frontier.push(new_path, new_cost)
-  util.raiseNotDefined()
+  
 
 def getNewChoices(choices, traversed):
   """
