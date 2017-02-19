@@ -157,50 +157,118 @@ def breadthFirstSearch(problem):
   current_layer = util.Queue()
   paths = {}
   traversed = []
+  corners_problem = False
 
-  current_layer.push(problem.getStartState())
-  shortest_path = []
-  traversed.append(problem.getStartState())
+  start_state = problem.getStartState()
+  print start_state
+  if not isinstance(start_state[1], int):
+    corners_problem = True
 
 
-  # go through all the nodes in current_layer, until current_layer is empty
-  while current_layer.isEmpty() == False:
-    current_state = current_layer.pop()
+  if not corners_problem:
+    current_layer.push(start_state)
+    shortest_path = []
+    traversed.append(start_state)
 
-    # if we found the goal state, then get the current path and break
-    if problem.isGoalState(current_state):
-      shortest_path = paths[current_state]
-      break
+    # go through all the nodes in current_layer, until current_layer is empty
+    while current_layer.isEmpty() == False:
+      current_state = current_layer.pop()
 
-    # otherwise, get the current path for that node
-    current_path = []
-    if current_state in paths:
-      current_path = paths.pop(current_state, None)
+      # if we found the goal state, then get the current path and break
+      if problem.isGoalState(current_state):
+        print "current state", current_state
+        shortest_path = paths[current_state]
+        break
 
-    # get the untraversed possible moves for current node
-    choices = problem.getSuccessors(current_state)
-    new_choices = []
-    for choice in choices:
-      if choice[0] not in traversed:
-        new_choices.append(choice)
-        traversed.append(choice[0])
-    
-    # if there's no more untraversed possible moves, 
-    # then terminate search on that path
-    # otherwise, make deep copy of current path, push new node onto the copy
-    # and put new path into paths dictionary
-    if len(new_choices) == 0:
-      continue
-    else:
-      for new_choice in new_choices:
-        new_path = current_path[:]
-        new_path.append(new_choice)
-        paths[new_choice[0]] = new_path
-        current_layer.push(new_choice[0])
+      # otherwise, get the current path for that node
+      current_path = []
+      if current_state in paths:
+        current_path = paths.pop(current_state, None)
 
-  # get directions in "South", "West", "East", and "North" form
-  directions = [node[1] for node in shortest_path]
-  return directions
+      # get the untraversed possible moves for current node
+      choices = problem.getSuccessors(current_state)
+      new_choices = []
+      for choice in choices:
+        if choice[0] not in traversed:
+          new_choices.append(choice)
+          traversed.append(choice[0])
+      
+      # if there's no more untraversed possible moves, 
+      # then terminate search on that path
+      # otherwise, make deep copy of current path, push new node onto the copy
+      # and put new path into paths dictionary
+      if len(new_choices) == 0:
+        continue
+      else:
+        for new_choice in new_choices:
+          new_path = current_path[:]
+          new_path.append(new_choice)
+          paths[new_choice[0]] = new_path
+          current_layer.push(new_choice[0])
+
+  
+  # if problem is corners problem
+  else: 
+    corners_state = start_state[1][:]
+    # print corners_state
+    current_layer.push(start_state[0])
+    shortest_path = []
+    traversed.append(start_state[0])
+
+    # find shortest path to first corner
+    while current_layer.isEmpty() == False:
+      current_state = current_layer.pop()
+      
+
+      # if we traversed to a corner in current start_state
+      # if traversed all corners, then add current path to shortest_path and return iter
+      # otherwise, reset Queue, traversed, and paths and add current path to shortest_path
+      if len(problem.isGoalState(current_state)) > len(corners_state):
+        if len(problem.isGoalState(current_state)) == 4:
+          shortest_path += paths[current_state]
+          break
+        else:
+          corners_state = problem.isGoalState(current_state)[:]
+          shortest_path += paths[current_state]
+          paths = {}
+          traversed = []
+          traversed.append(current_state)
+          current_layer = util.Queue()
+          current_layer.push(current_state)
+
+      # otherwise, get the current path for that node
+      current_path = []
+      if current_state in paths:
+        current_path = paths.pop(current_state, None)
+
+      # get the untraversed possible moves for current node
+      choices = problem.getSuccessors(current_state)
+      new_choices = []
+      for choice in choices:
+        if choice[0] not in traversed:
+          new_choices.append(choice)
+          traversed.append(choice[0])
+      
+      # if there's no more untraversed possible moves, 
+      # then terminate search on that path
+      # otherwise, make deep copy of current path, push new node onto the copy
+      # and put new path into paths dictionary
+      if len(new_choices) == 0:
+        continue
+      else:
+        for new_choice in new_choices:
+          new_path = current_path[:]
+          new_path.append(new_choice)
+          paths[new_choice[0]] = new_path
+          current_layer.push(new_choice[0])
+
+    # get directions in "South", "West", "East", and "North" form
+    directions = [node[1] for node in shortest_path]
+    return directions
+
+
+      
+
 
       
 def uniformCostSearch(problem):
