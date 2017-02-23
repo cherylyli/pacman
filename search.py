@@ -336,30 +336,40 @@ def aStarSearch(problem, heuristic=nullHeuristic):
   frontier = util.PriorityQueue()
   traversed = []
   corners_problem = False
+  food_problem = False
   shortest_path = []
 
   start_state = problem.getStartState()
-  # print start_state
+  
   if not isinstance(start_state[1], int):
-    corners_problem = True
-
+    if isinstance(start_state[1], list):
+      corners_problem = True
+    else:
+      food_problem = True
+      corners_problem = False
 
 
   
   start_state = problem.getStartState()
   if not isinstance(start_state[1], int):
-    corners_problem = True
     current_node = start_state[0]
     corners_state = start_state[1][:]
   else:
     current_node = start_state
 
-  # print current_node
+  foodGrid = start_state[1]
 
   # perform the first loop:
   # get start node and its successors, compute value and push into frontier
+  actions = []
   traversed.append(current_node)
-  actions = problem.getSuccessors(current_node)
+  if food_problem:
+    params = []
+    params.append(current_node)
+    params.append(foodGrid)
+    actions = problem.getSuccessors(params)
+  else:
+    actions = problem.getSuccessors(current_node)
 
   for action in actions:
     actions_list = []
@@ -376,9 +386,8 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     current_path = frontier.pop()
     current_node = current_path[-1]
 
-
     # if we reached the goal, break and return shortest path
-    if not corners_problem and problem.isGoalState(current_node[0]):
+    if not corners_problem and not food_problem and problem.isGoalState(current_node[0]):
       shortest_path = [node[1] for node in current_path]
       return shortest_path
       
@@ -396,12 +405,45 @@ def aStarSearch(problem, heuristic=nullHeuristic):
         actions_list = [node[1] for node in shortest_path]
         cost = problem.getCostOfActions(actions_list) + heuristic(current_node[0], problem)
         frontier.push(shortest_path, cost)
-          
+
+    elif food_problem:
+      if problem.isGoalState(current_node[0]):
+        return [node[1] for node in current_path]
+      newFoodGrid = current_node[0][1]
+
+      # if one of the food that's in foodGrid is not in newFoodGrid, then erase things and start again
+      for row_index, row in enumerate(foodGrid):
+        for col_index, item in enumerate(row):
+          if foodGrid[row_index][col_index] and not newFoodGrid[row_index][col_index]:
+            shortest_path = current_path
+            traversed = []
+            traversed.append(current_node[0][0])
+            frontier = util.PriorityQueue()
+            actions_list = [node[1] for node in shortest_path]
+            cost = problem.getCostOfActions(actions_list) + heuristic(current_node[0], problem)
+            frontier.push(shortest_path, cost)
+            foodGrid = newFoodGrid[:]
       
+      if food_problem and problem.isGoalState(current_node[0]) == True:
+      # print problem.isGoalState(current_node[0])[1]
+        shortest_path = [node[1] for node in current_path]
+        print shortest_path
+        return shortest_path
+
+    # get successors for food problem
+    if food_problem:
+      choices = problem.getSuccessors(current_node[0])
+      new_choices = []
+      for choice in choices:
+        if choice[0][0] not in traversed:
+          traversed.append(choice[0][0])
+          new_choices.append(choice)
+          
 
     # get the new_choices and new traversed list
-    choices = problem.getSuccessors(current_node[0])
-    new_choices, traversed = getNewChoices(choices, traversed)     
+    else:
+      choices = problem.getSuccessors(current_node[0])
+      new_choices, traversed = getNewChoices(choices, traversed)     
 
     # if no more choices, then end looking into this path
     if len(new_choices) == 0:

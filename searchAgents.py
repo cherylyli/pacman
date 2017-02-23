@@ -400,8 +400,11 @@ class FoodSearchProblem:
     successors = []
     self._expanded += 1
     for direction in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
+      # print "state", state
+      # print "state[0]: ",state[0]
       x,y = state[0]
       # x, y = state
+      # print x, y
       dx, dy = Actions.directionToVector(direction)
       nextx, nexty = int(x + dx), int(y + dy)
       if not self.walls[nextx][nexty]:
