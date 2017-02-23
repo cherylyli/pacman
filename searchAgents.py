@@ -401,6 +401,7 @@ class FoodSearchProblem:
     self._expanded += 1
     for direction in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
       x,y = state[0]
+      # x, y = state
       dx, dy = Actions.directionToVector(direction)
       nextx, nexty = int(x + dx), int(y + dy)
       if not self.walls[nextx][nexty]:

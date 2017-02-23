@@ -176,9 +176,9 @@ def breadthFirstSearch(problem):
 
       # if we found the goal state, then get the current path and break
       if problem.isGoalState(current_state):
-        print "current state", current_state
         shortest_path = paths[current_state]
-        break
+        directions = [node[1] for node in shortest_path]
+        return directions
 
       # otherwise, get the current path for that node
       current_path = []
@@ -226,7 +226,7 @@ def breadthFirstSearch(problem):
       if len(problem.isGoalState(current_state)) > len(corners_state):
         if len(problem.isGoalState(current_state)) == 4:
           shortest_path += paths[current_state]
-          break
+          return [node[1] for node in shortest_path]
         else:
           corners_state = problem.isGoalState(current_state)[:]
           shortest_path += paths[current_state]
@@ -261,11 +261,6 @@ def breadthFirstSearch(problem):
           new_path.append(new_choice)
           paths[new_choice[0]] = new_path
           current_layer.push(new_choice[0])
-
-    # get directions in "South", "West", "East", and "North" form
-    directions = [node[1] for node in shortest_path]
-    print len(directions)
-    return directions
 
 
       
