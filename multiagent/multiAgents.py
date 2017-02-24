@@ -185,7 +185,12 @@ class MinimaxAgent(MultiAgentSearchAgent):
           gameState.getNumAgents():
             Returns the total number of agents in the game
         """
-        "*** YOUR CODE HERE ***"
+        # get depth
+
+        
+        print self.depth
+        
+        
         util.raiseNotDefined()
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
