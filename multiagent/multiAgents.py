@@ -168,7 +168,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
       Your minimax agent (question 2)
     """
 
-    def getAction(self, gameState):
+    def getAction(self, gameState, current_depth=0):
         """
           Returns the minimax action from the current gameState using self.depth
           and self.evaluationFunction.
@@ -185,13 +185,65 @@ class MinimaxAgent(MultiAgentSearchAgent):
           gameState.getNumAgents():
             Returns the total number of agents in the game
         """
-        # get depth
+        # get each agent's legal actions
+        actions = gameState.getLegalActions(0)
+        num_agents = gameState.getNumAgents()
+        agent_actions = []
+        for agent_index in range(num_agents):
+          agent_actions.append(gameState.getLegalActions(agent_index))
 
         
-        print self.depth
+
+        # for the new_game_state, find best move for agent
+        if current_depth == self.depth: 
+          # for all ghost agents, get the best possible move
+          best_ghost_moves = []
+
+          for agent_index in range(num_agents-1):
+            possible_choices = agent_actions[agent_index+1][:]
+            scores = []
+            
+            for choice in possible_choices:
+              new_game_state = gameState.generateSuccessor(agent_index+1, choice)
+              scores.append(self.evaluationFunction(new_game_state))
+            best_ghost_moves.append(possible_choices[scores.index(min(scores))])
+
+          new_game_state = gameState
+          
+          for ghost_move_index in range(len(best_ghost_moves)):
+            new_game_state = new_game_state.generateSuccessor(ghost_move_index+1, best_ghost_moves[ghost_move_index])
+
+
+          agent_choice_scores = []
+          for choice in agent_actions[0]:
+            new_agent_game = new_game_state.generateSuccessor(0, choice)
+            agent_choice_scores.append(self.evaluationFunction(new_agent_game))
+          
+          print agent_choice_scores
+          index_best_move = agent_choice_scores.index(max(agent_choice_scores))
+          return agent_actions[0][index_best_move]
+        
+        else:
+          best_game_state
+          return self.getAction()
+
+              
+
+
+
+            
+
+
+        # successors = gameState.generateSuccessor(0, )
+
+        
+        # for each depth, get successors
+        current_depth = 0
+        
+
+
         
         
-        util.raiseNotDefined()
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
