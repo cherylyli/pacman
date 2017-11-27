@@ -74,62 +74,44 @@ class ReflexAgent(Agent):
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
         newGhostPositions = successorGameState.getGhostPositions()
 
+        # if next state is win or lose
+        if successorGameState.isWin():
+            return float("inf") - 20
+        if successorGameState.isLose():
+          return float("-inf") +20
 
-        # Find and store all the food positions
-        foodPositions = []
-        for row_index, row in enumerate(newFood):
-          for col_index, col in enumerate(row):
-            if newFood[row_index][col_index]:
-              foodPositions.append((row_index, col_index))
+        score = 0
 
-        
-        # get score
-        score = successorGameState.getScore()
+        # minimum distance to nearest food
+        next_food = 1000
+        for (ind_r, ind_c) in newFood.asList():
+            next_food = min(next_food, manhattanDistance((ind_r, ind_c), newPos))
 
-        # reduce score if agent is near ghost
+        # if we eat a food in next step, increase score
+        if (currentGameState.getNumFood() > successorGameState.getNumFood()):
+            score += next_food * 7
 
-        for ghostPos in newGhostPositions:
-          ghostDistance = manhattanDistance(ghostPos, newPos)
-          if ghostDistance < 1.0:
-            score -= 10.0
-          elif ghostDistance < 2.0:
-            score -= 8.0
-          elif ghostDistance < 5.0:
-            score -= 2.0
-          elif ghostDistance < 10.0:
-            score -= 1.0
+        if action == "Stop":
+          score -= 3
+        score -= next_food * 2
+        score -= random.randint(0, 10) * 0.2
 
-        # increase score if agent is near food
-        if len(foodPositions) > 0:
-          foodDistances = [manhattanDistance(food, newPos) for food in foodPositions]
-          minDistance = min(foodDistances)
-          
-          for foodDistance in foodDistances:
-            if foodDistance < 1.0:
-              score += 3.0
-            elif foodDistance < 2.0:
-              score += 1.0
-            elif foodDistance < 5.0:
-              score += 0.5
-            if len(foodPositions) < 20:
-              if foodDistance < 2.0:
-                score += 4.0
-              elif foodDistance < 5.0:
-                score += 3.0
-              elif foodDistance < 8.0:
-                score += 2.0
-              elif foodDistance < 13.0:
-                score += 1.5
-              elif foodDistances < 15.0:
-                score += 1.0
-              elif foodDistances < 20.0:
-                score += 0.8
-              elif foodDistances < 25.0:
-                score += 0.5
-              elif foodDistances < 30.0:
-                score += 0.3
-          
-              
+        # avoid ghosts within 3 steps
+        for ghost in newGhostPositions:
+            md = manhattanDistance(ghost, newPos)
+            if md == 0:
+              score -= next_food * 10
+            if md == 1:
+                score -= next_food * 5
+            elif md == 2:
+                score -= next_food * 3
+            elif md == 3:
+              score -= next_food * 2
+
+        # optimize for eating capsules 
+        capsuleplaces = currentGameState.getCapsules()
+        if successorGameState.getPacmanPosition() in capsuleplaces:
+            score += next_food * 5
 
         return score
 
